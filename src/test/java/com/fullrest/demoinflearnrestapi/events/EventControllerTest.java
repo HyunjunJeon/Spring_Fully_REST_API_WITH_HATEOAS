@@ -36,7 +36,8 @@ public class EventControllerTest {
 
     @Test
     public void creatEvent() throws Exception{
-        EventDto event = EventDto.builder()
+        Event event = Event.builder()
+                .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019,05,07,13,31,30))
@@ -47,6 +48,8 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 StartUp Factory")
+                .free(true)
+                .offline(false)
                 .build();
 
         // Event Repository를 MockBean으로 호출하면 객체에 null 이 담겨져 있어 NullPointerException 발생
@@ -68,8 +71,7 @@ public class EventControllerTest {
     @Test
     // ObjectMapper가 객체를 Deserialize 할때 Unknown Properties 가 있으면 Fail 되게끔 yaml 설정을 해줬음(Spring boot 제공)
     public void creatEvent_Bad_Request() throws Exception{
-        Event event = Event.builder()
-                .id(100)
+        EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019,05,07,13,31,30))
@@ -80,8 +82,6 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 StartUp Factory")
-                .free(true)
-                .offline(false)
                 .build();
 
         mockMvc.perform(post("/api/events/")
@@ -99,6 +99,28 @@ public class EventControllerTest {
         mockMvc.perform(post("/api/events/")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .content(objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception{
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2019,05,07,13,31,30))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019,05,8,13,31,30))
+                .beginEventDateTime(LocalDateTime.of(2019,05,9,13,31,30))
+                .endEventDateTime(LocalDateTime.of(2019,05,10,13,32,30))
+                .basePrice(10000) // Annotation으로 검증하기 애매한 경우 -> Validator 를 만들어주어야함
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 StartUp Factory")
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
 
     }
