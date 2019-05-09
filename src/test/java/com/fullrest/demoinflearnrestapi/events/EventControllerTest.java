@@ -42,10 +42,10 @@ public class EventControllerTest {
                 .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2019,05,07,13,31,30))
-                .closeEnrollmentDateTime(LocalDateTime.of(2019,05,8,13,31,30))
-                .beginEventDateTime(LocalDateTime.of(2019,05,9,13,31,30))
-                .endEventDateTime(LocalDateTime.of(2019,05,10,13,32,30))
+                .beginEnrollmentDateTime(LocalDateTime.of(2019,5,7,13,31,30))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019,5,8,13,31,30))
+                .beginEventDateTime(LocalDateTime.of(2019,5,9,13,31,30))
+                .endEventDateTime(LocalDateTime.of(2019,5,10,13,32,30))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -126,7 +126,41 @@ public class EventControllerTest {
         mockMvc.perform(post("/api/events/")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(eventDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists());
+    }
 
+    @Test
+    @TestDescription("비지니스 로직 적용검증")
+    public void creatEvent_Biz_Logic() throws Exception{
+        Event event = Event.builder()
+                .id(100)
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2019,5,7,13,31,30))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019,5,8,13,31,30))
+                .beginEventDateTime(LocalDateTime.of(2019,5,9,13,31,30))
+                .endEventDateTime(LocalDateTime.of(2019,5,10,13,32,30))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 StartUp Factory")
+                .free(true)
+                .offline(false)
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                .contentType(MediaTypes.HAL_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON_UTF8_VALUE)
+                .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(EventStatus.DRAFT.name()));
     }
 }
