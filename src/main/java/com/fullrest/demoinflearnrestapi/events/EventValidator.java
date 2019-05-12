@@ -17,9 +17,9 @@ public class EventValidator {
 
         /*
             이벤트 끝나는 시간
-            조건1:
-            조건2:
-            조건3:
+            조건1: 이벤트 시작시간보다 뒤
+            조건2: 이벤트 등록시작 시간보다 뒤
+            조건3: 이벤트 등록마감 시간보다 뒤
          */
         // TODO endEventDateTime
         LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();
@@ -31,13 +31,13 @@ public class EventValidator {
 
         /*
             이벤트 시작 시간
-            조건1:
-            조건2:
-            조건3:
+            조건1: 이벤트 마감시간보다 앞
+            조건2: 이벤트 등록시작 시간보다 뒤
+            조건3: 이벤트 등록마감 시간보다 뒤
          */
         // TODO beginEventDateTime
         LocalDateTime beginEventDateTime = eventDto.getBeginEventDateTime();
-        if(beginEventDateTime.isAfter(eventDto.getEndEventDateTime()) ||
+        if(beginEventDateTime.isBefore(eventDto.getEndEventDateTime()) ||
             beginEventDateTime.isAfter(eventDto.getBeginEnrollmentDateTime()) ||
             beginEventDateTime.isAfter(eventDto.getCloseEnrollmentDateTime())){
             errors.rejectValue("beginEventDateTime", "Wrong Value", "beginEventDateTime is Wrong");
@@ -45,15 +45,15 @@ public class EventValidator {
 
         /*
             이벤트 등록 마감시간
-            조건1:
-            조건2:
-            조건3:
+            조건1: 이벤트 시작 시간보다 앞
+            조건2: 이벤트 마감 시간보다 앞
+            조건3: 이벤트 등록시작 시간보다 뒤
          */
         // TODO CloseEnrollmentDateTime
         LocalDateTime CloseEnrollmentDateTime = eventDto.getCloseEnrollmentDateTime();
         if(CloseEnrollmentDateTime.isBefore(eventDto.getBeginEventDateTime()) ||
-            CloseEnrollmentDateTime.isAfter(eventDto.getEndEventDateTime()) ||
-            CloseEnrollmentDateTime.isBefore(eventDto.getBeginEnrollmentDateTime())){
+            CloseEnrollmentDateTime.isBefore(eventDto.getEndEventDateTime()) ||
+            CloseEnrollmentDateTime.isAfter(eventDto.getBeginEnrollmentDateTime())){
             errors.rejectValue("CloseEnrollmentDateTime", "Wrong Value", "CloseEnrollmentDateTime is Wrong");
         }
     }

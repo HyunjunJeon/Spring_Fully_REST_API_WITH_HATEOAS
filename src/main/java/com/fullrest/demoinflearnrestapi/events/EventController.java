@@ -30,18 +30,19 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
-        if(errors.hasErrors()){
+        if(errors.hasErrors()){ // 요청단에서 에러 발생하면... => 애노테이션 에러
             return ResponseEntity.badRequest().body(errors);
         }
 
         eventValidator.validate(eventDto, errors);
-        if(errors.hasErrors()){
+        if(errors.hasErrors()){ // Validator 관련 에러 발생시
             return ResponseEntity.badRequest().body(errors);
         }
 
-        Event event = modelMapper.map(eventDto, Event.class);
+        Event event = modelMapper.map(eventDto, Event.class); // JSON 으로 변환
         event.update();
         Event newEvent = eventRepository.save(event);
+
         URI createdURI = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdURI).body(event);
     }
