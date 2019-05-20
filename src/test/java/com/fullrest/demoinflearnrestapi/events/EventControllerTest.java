@@ -36,10 +36,9 @@ public class EventControllerTest {
 //    EventRepository eventRepository;
 
     @Test
-    @TestDescription("정상적으로 이벤트를 생성하는 이벤트")
+    @TestDescription("정상적으로 이벤트를 생성하는 테스트")
     public void creatEvent() throws Exception{
-        Event event = Event.builder()
-                .id(100)
+        EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019,5,7,13,31,30))
@@ -50,12 +49,10 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 StartUp Factory")
-                .free(true)
-                .offline(false)
                 .build();
 
         // Event Repository를 MockBean으로 호출하면 객체에 null 이 담겨져 있어 NullPointerException 발생
-        //Mockito.when(eventRepository.save(event)).thenReturn(event);
+        // Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events/")
                 .contentType(MediaTypes.HAL_JSON_UTF8)
@@ -67,7 +64,11 @@ public class EventControllerTest {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)));
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+        ;
     }
 
     @Test
