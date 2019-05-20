@@ -44,10 +44,10 @@ public class EventController {
         event.update();
         Event newEvent = this.eventRepository.save(event);
 
+        // _links 추가하는 부분
         ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
         URI createdURI = selfLinkBuilder.toUri();
-
-        EventResource eventResource = new EventResource(event); // eventResource를 본문에 넣어주기 위해서
+        EventResource eventResource = new EventResource(event); // event-Resource를 본문에 넣어주기 위해서 event 객체 전송
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         eventResource.add(selfLinkBuilder.withSelfRel());
         eventResource.add(selfLinkBuilder.withRel("update-event"));
