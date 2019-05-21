@@ -1,6 +1,7 @@
 package com.fullrest.demoinflearnrestapi.events;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class EventController {
         EventResource eventResource = new EventResource(event); // event-Resource를 본문에 넣어주기 위해서 event 객체 전송
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         eventResource.add(selfLinkBuilder.withRel("update-event"));
-
+        eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(createdURI).body(eventResource);
     }
 

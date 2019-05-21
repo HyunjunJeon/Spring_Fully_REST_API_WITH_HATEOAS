@@ -73,16 +73,15 @@ public class EventControllerTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("id").exists())
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.update-event").exists())
-                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("offline").value(true))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
                 .andDo(document("create-event",
                         links(
                             linkWithRel("self").description("link to self"),
                             linkWithRel("query-events").description("link to query event"),
-                            linkWithRel("update-event").description("link to update event")
+                            linkWithRel("update-event").description("link to update event"),
+                            linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -122,7 +121,8 @@ public class EventControllerTest {
                                 // relaxed를 빼고 사용하기 위해서는
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-events.href").description("link to query events"),
-                                fieldWithPath("_links.update-event.href").description("link to update event")
+                                fieldWithPath("_links.update-event.href").description("link to update event"),
+                                fieldWithPath("_links.profile.href").description("link to profile")
                         )
                 ))
         ;
@@ -132,7 +132,7 @@ public class EventControllerTest {
     @TestDescription("입력받을 수 없는 값을 사용하는 경우 BadRequest를 발생하는 테스트")
     // ObjectMapper가 객체를 Deserialize 할때 Unknown Properties 가 있으면 Fail 되게끔 yaml 설정을 해줬음(Spring boot 제공)
     public void creatEvent_Bad_Request() throws Exception{
-        EventDto event = EventDto.builder()
+        Event event = Event.builder()
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019,05,07,13,31,30))
@@ -193,8 +193,7 @@ public class EventControllerTest {
     @Test
     @TestDescription("비지니스 로직 적용검증")
     public void creatEvent_Biz_Logic() throws Exception{
-        Event event = Event.builder()
-                .id(100)
+        EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2019,5,7,13,31,30))
@@ -205,8 +204,6 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 StartUp Factory")
-                .free(true)
-                .offline(false)
                 .build();
 
         mockMvc.perform(post("/api/events/")
@@ -219,6 +216,6 @@ public class EventControllerTest {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("free").value(false))
-                .andExpect(jsonPath("offline").value(EventStatus.DRAFT.name()));
+                .andExpect(jsonPath("offline").value(true));
     }
 }
