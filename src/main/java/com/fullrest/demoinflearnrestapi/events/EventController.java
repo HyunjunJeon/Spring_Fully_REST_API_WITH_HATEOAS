@@ -49,7 +49,6 @@ public class EventController {
         URI createdURI = selfLinkBuilder.toUri();
         EventResource eventResource = new EventResource(event); // event-Resource를 본문에 넣어주기 위해서 event 객체 전송
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
-        eventResource.add(selfLinkBuilder.withSelfRel());
         eventResource.add(selfLinkBuilder.withRel("update-event"));
 
         return ResponseEntity.created(createdURI).body(eventResource);
