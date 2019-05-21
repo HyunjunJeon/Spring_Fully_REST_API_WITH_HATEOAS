@@ -1,5 +1,6 @@
 package com.fullrest.demoinflearnrestapi.events;
 
+import com.fullrest.demoinflearnrestapi.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -33,12 +34,12 @@ public class EventController {
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
         if(errors.hasErrors()){ // 요청단에서 에러 발생하면... => 애노테이션 에러
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){ // Validator 관련 에러 발생시
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class); // JSON 으로 변환
@@ -55,4 +56,7 @@ public class EventController {
         return ResponseEntity.created(createdURI).body(eventResource);
     }
 
+    private ResponseEntity badRequest(Errors errors){
+        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
+    }
 }
