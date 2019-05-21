@@ -2,3 +2,27 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: jhj
+    password: pass
+    url: jdbc:postgresql://localhost:5432/jhj
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
